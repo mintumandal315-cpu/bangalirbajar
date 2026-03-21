@@ -1,0 +1,200 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../utils/supabase'
+
+export default function AdminPage() {
+  const [providers, setProviders] = useState([])
+  const [notes, setNotes] = useState({})
+  const [filter, setFilter] = useState('pending')
+
+  const fetchProviders = async () => {
+    let query = supabase
+      .from('providers')
+      .select('*, categories(name, icon)')
+      .order('created_at', { ascending: false })
+
+    if (filter === 'pending') query = query.eq('is_approved', false)
+    if (filter === 'approved') query = query.eq('is_approved', true)
+
+    const { data } = await query
+    setProviders(data || [])
+  }
+
+  useEffect(() => {
+    fetchProviders()
+  }, [filter])
+
+  const approve = async (id) => {
+    await supabase.from('providers').update({ is_approved: true }).eq('id', id)
+    fetchProviders()
+  }
+
+  const remove = async (id) => {
+    if (!confirm('Are you sure you want to delete this listing?')) return
+    await supabase.from('providers').delete().eq('id', id)
+    fetchProviders()
+  }
+
+  const toggleVisibility = async (id, currentStatus) => {
+    await supabase.from('providers').update({ is_active: !currentStatus }).eq('id', id)
+    fetchProviders()
+  }
+
+  const sendNote = async (id) => {
+    await supabase.from('providers').update({ admin_notes: notes[id] }).eq('id', id)
+    alert('Note saved!')
+    fetchProviders()
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5', padding: '32px 24px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '26px', color: '#7A1515' }}>
+            Admin Dashboard
+          </h1>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {['pending', 'approved', 'all'].map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif",
+                  backgroundColor: filter === f ? '#7A1515' : '#FFFFFF',
+                  color: filter === f ? '#FDF8F0' : '#57534E',
+                  textTransform: 'capitalize'
+                }}
+              >
+                {f}
+              </button>
+            ))}
+            <a href="/admin/analytics" style={{
+              padding: '8px 18px',
+              borderRadius: '8px',
+              backgroundColor: '#D4A017',
+              color: '#1C1917',
+              fontSize: '13px',
+              fontWeight: 600,
+              textDecoration: 'none'
+            }}>Analytics</a>
+          </div>
+        </div>
+
+        {providers.length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#A8A29E', padding: '60px 0' }}>No providers found.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {providers.map(p => (
+              <div key={p.id} style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '16px',
+                padding: '24px',
+                border: '1px solid #F0E6D3',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                opacity: p.is_active ? 1 : 0.6
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '20px' }}>{p.categories?.icon}</span>
+                      <span style={{ fontSize: '12px', color: '#78716C' }}>{p.categories?.name}</span>
+                      <span style={{
+                        fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '50px',
+                        backgroundColor: p.is_approved ? '#D1FAE5' : '#FEF3C7',
+                        color: p.is_approved ? '#065F46' : '#92400E'
+                      }}>
+                        {p.is_approved ? 'Approved' : 'Pending'}
+                      </span>
+                      <span style={{
+                        fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '50px',
+                        backgroundColor: p.is_active ? '#DBEAFE' : '#FEE2E2',
+                        color: p.is_active ? '#1E40AF' : '#991B1B'
+                      }}>
+                        {p.is_active ? 'Visible' : 'Hidden'}
+                      </span>
+                    </div>
+                    <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '18px', color: '#1C1917', marginBottom: '2px' }}>{p.business_name}</h2>
+                    <p style={{ fontSize: '13px', color: '#57534E' }}>{p.name} · {p.area}</p>
+                    <p style={{ fontSize: '13px', color: '#57534E' }}>📞 {p.phone}{p.whatsapp ? ' · WhatsApp: ' + p.whatsapp : ''}</p>
+                    {p.description && <p style={{ fontSize: '13px', color: '#78716C', marginTop: '6px' }}>{p.description}</p>}
+                    {p.admin_notes && (
+                      <p style={{ fontSize: '12px', color: '#7A1515', marginTop: '6px' }}>📋 Note: {p.admin_notes}</p>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '120px' }}>
+                    {!p.is_approved && (
+                      <button
+                        onClick={() => approve(p.id)}
+                        style={{
+                          padding: '8px 16px', backgroundColor: '#059669', color: '#FDF8F0',
+                          border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                          cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
+                        }}
+                      >
+                        Approve
+                      </button>
+                    )}
+                    <button
+                      onClick={() => toggleVisibility(p.id, p.is_active)}
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: p.is_active ? '#FEF3C7' : '#D1FAE5',
+                        color: p.is_active ? '#92400E' : '#065F46',
+                        border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                        cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
+                      }}
+                    >
+                      {p.is_active ? 'Hide' : 'Show'}
+                    </button>
+                    <button
+                      onClick={() => remove(p.id)}
+                      style={{
+                        padding: '8px 16px', backgroundColor: '#FEE2E2', color: '#991B1B',
+                        border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                        cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input
+                    type="text"
+                    placeholder="Add a note for this provider..."
+                    defaultValue={p.admin_notes || ''}
+                    onChange={(e) => setNotes({ ...notes, [p.id]: e.target.value })}
+                    style={{
+                      flex: 1, padding: '10px 14px', borderRadius: '8px',
+                      border: '1.5px solid #E7D5C0', fontSize: '13px',
+                      color: '#1C1917', fontFamily: "'DM Sans', sans-serif", outline: 'none'
+                    }}
+                  />
+                  <button
+                    onClick={() => sendNote(p.id)}
+                    style={{
+                      padding: '10px 20px', backgroundColor: '#7A1515', color: '#FDF8F0',
+                      border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                      cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
+                    }}
+                  >
+                    Save Note
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
