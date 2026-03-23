@@ -4,6 +4,7 @@ import { supabase } from '../../utils/supabase'
 
 export default function ChatPage() {
   const [user, setUser] = useState(null)
+  const [customerName, setCustomerName] = useState('')
   const [providers, setProviders] = useState([])
   const [selectedProvider, setSelectedProvider] = useState(null)
   const [messages, setMessages] = useState([])
@@ -19,6 +20,14 @@ export default function ChatPage() {
         return
       }
       setUser(user)
+
+      const { data: customerData } = await supabase
+        .from('customers')
+        .select('name')
+        .eq('id', user.id)
+        .single()
+
+      setCustomerName(customerData?.name || user.email.split('@')[0])
       setLoading(false)
     }
     getUser()
@@ -30,25 +39,26 @@ export default function ChatPage() {
         .from('providers')
         .select('*, categories(name, icon)')
         .eq('is_approved', true)
+        .eq('is_active', true)
       setProviders(data || [])
     }
     fetchProviders()
   }, [])
 
   const fetchMessages = async (provider) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('messages')
       .select('*')
       .eq('provider_id', provider.id)
+      .eq('customer_id', user.id)
       .order('created_at', { ascending: true })
-    if (error) console.log('fetch error', error)
     setMessages(data || [])
   }
 
   useEffect(() => {
-    if (!selectedProvider) return
+    if (!selectedProvider || !user) return
     fetchMessages(selectedProvider)
-  }, [selectedProvider])
+  }, [selectedProvider, user])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -57,17 +67,14 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || !selectedProvider) return
 
-    const { error } = await supabase.from('messages').insert([{
+    await supabase.from('messages').insert([{
       provider_id: selectedProvider.id,
       customer_id: user.id,
+      customer_email: user.email,
+      customer_name: customerName,
       sender_role: 'customer',
       content: newMessage.trim()
     }])
-
-    if (error) {
-      console.log('insert error', error)
-      return
-    }
 
     setNewMessage('')
     fetchMessages(selectedProvider)
@@ -78,69 +85,85 @@ export default function ChatPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-red-50 flex items-center justify-center">
-      <p className="text-gray-700">Loading...</p>
+    <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: '#78716C' }}>Loading...</p>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-red-50 flex">
-      <div className="w-72 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="font-bold text-red-700">Bangalir Bajar</h2>
-          <p className="text-xs text-gray-600">Select a provider to chat</p>
+    <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', display: 'flex', height: 'calc(100vh - 64px)' }}>
+
+      {/* Sidebar */}
+      <div style={{ width: '280px', backgroundColor: '#FFFFFF', borderRight: '1px solid #F0E6D3', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '20px', borderBottom: '1px solid #F0E6D3' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '18px', color: '#0369A1', marginBottom: '4px' }}>এই শহরে</h2>
+          <p style={{ fontSize: '12px', color: '#A8A29E' }}>Hi {customerName} · Select a provider</p>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div style={{ flex: 1, overflowY: 'auto' }}>
           {providers.map(p => (
             <div
               key={p.id}
               onClick={() => setSelectedProvider(p)}
-              className={`p-4 cursor-pointer border-b border-gray-100 hover:bg-red-50 transition ${
-                selectedProvider?.id === p.id ? 'bg-red-50 border-l-4 border-l-red-600' : ''
-              }`}
+              style={{
+                padding: '16px 20px',
+                cursor: 'pointer',
+                borderBottom: '1px solid #F5EDE0',
+                backgroundColor: selectedProvider?.id === p.id ? '#EFF6FF' : 'transparent',
+                borderLeft: selectedProvider?.id === p.id ? '3px solid #0369A1' : '3px solid transparent',
+                transition: 'all 0.15s'
+              }}
             >
-              <p className="font-medium text-gray-900 text-sm">{p.business_name}</p>
-              <p className="text-xs text-gray-600">{p.categories?.icon} {p.categories?.name}</p>
-              <p className="text-xs text-gray-600">📍 {p.area}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '20px' }}>{p.categories?.icon}</span>
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#1C1917', marginBottom: '2px' }}>{p.business_name}</p>
+                  <p style={{ fontSize: '11px', color: '#78716C' }}>📍 {p.area}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
-        <div className="p-4 border-t border-gray-200">
+        <div style={{ padding: '16px 20px', borderTop: '1px solid #F0E6D3' }}>
           <button
             onClick={() => supabase.auth.signOut().then(() => window.location.href = '/login')}
-            className="text-xs text-red-500 hover:underline"
+            style={{ fontSize: '13px', color: '#0369A1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
           >
             Sign out
           </button>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col">
+      {/* Chat window */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {!selectedProvider ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-600">Select a provider to start chatting</p>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px' }}>
+            <span style={{ fontSize: '48px' }}>💬</span>
+            <p style={{ color: '#A8A29E', fontSize: '16px', fontFamily: "'Playfair Display', serif" }}>Select a provider to start chatting</p>
           </div>
         ) : (
           <>
-            <div className="bg-white border-b border-gray-200 p-4">
-              <p className="font-bold text-gray-900">{selectedProvider.business_name}</p>
-              <p className="text-sm text-gray-600">{selectedProvider.area}</p>
+            <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #F0E6D3', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '24px' }}>{selectedProvider.categories?.icon}</span>
+              <div>
+                <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '16px', fontWeight: 600, color: '#1C1917' }}>{selectedProvider.business_name}</p>
+                <p style={{ fontSize: '12px', color: '#78716C' }}>📍 {selectedProvider.area}</p>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: '#FDF8F0' }}>
               {messages.length === 0 && (
-                <p className="text-center text-gray-600 text-sm mt-10">No messages yet. Say hello!</p>
+                <p style={{ textAlign: 'center', color: '#A8A29E', fontSize: '14px', marginTop: '40px' }}>No messages yet. Say hello!</p>
               )}
               {messages.map(m => (
-                <div
-                  key={m.id}
-                  className={`flex ${m.sender_role === 'customer' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-xs px-4 py-2 rounded-2xl text-sm font-medium ${
-                    m.sender_role === 'customer'
-                      ? 'bg-red-600 text-white rounded-br-none'
-                      : 'bg-white text-gray-900 shadow rounded-bl-none'
-                  }`}>
+                <div key={m.id} style={{ display: 'flex', justifyContent: m.sender_role === 'customer' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '65%', padding: '12px 16px', borderRadius: '18px', fontSize: '14px', lineHeight: 1.5,
+                    backgroundColor: m.sender_role === 'customer' ? '#0369A1' : '#FFFFFF',
+                    color: m.sender_role === 'customer' ? '#FDF8F0' : '#1C1917',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                    borderBottomRightRadius: m.sender_role === 'customer' ? '4px' : '18px',
+                    borderBottomLeftRadius: m.sender_role === 'provider' ? '4px' : '18px',
+                  }}>
                     {m.content}
                   </div>
                 </div>
@@ -148,18 +171,18 @@ export default function ChatPage() {
               <div ref={bottomRef} />
             </div>
 
-            <div className="bg-white border-t border-gray-200 p-4 flex gap-2">
+            <div style={{ backgroundColor: '#FFFFFF', borderTop: '1px solid #F0E6D3', padding: '16px 24px', display: 'flex', gap: '12px' }}>
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type a message..."
-                className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-400"
+                style={{ flex: 1, padding: '12px 16px', borderRadius: '50px', border: '1.5px solid #E7D5C0', fontSize: '14px', color: '#1C1917', fontFamily: "'DM Sans', sans-serif", outline: 'none', backgroundColor: '#FDF8F0' }}
               />
               <button
                 onClick={sendMessage}
-                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-medium"
+                style={{ padding: '12px 24px', backgroundColor: '#0369A1', color: '#FDF8F0', border: 'none', borderRadius: '50px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
               >
                 Send
               </button>

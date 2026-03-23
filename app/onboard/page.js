@@ -54,13 +54,10 @@ export default function OnboardPage() {
         .from('provider_image')
         .upload(fileName, file)
 
-      console.log('upload result:', uploadData, error)
-
       if (!error) {
         const { data: urlData } = supabase.storage
           .from('provider_image')
           .getPublicUrl(fileName)
-        console.log('public url:', urlData.publicUrl)
         uploadedUrls.push(urlData.publicUrl)
       }
     }
@@ -78,25 +75,23 @@ export default function OnboardPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    console.log('submitting with images:', imageUrls)
-    const { data, error } = await supabase.from('providers').insert([{
+    const { error } = await supabase.from('providers').insert([{
       ...form,
       images: imageUrls
     }])
-    console.log('insert result:', data, error)
     setLoading(false)
     if (!error) setSuccess(true)
   }
 
   if (success) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#072940', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', padding: '40px' }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '28px', color: '#7A1515', marginBottom: '8px' }}>Application Successful!</h2>
-          <p style={{ color: '#78716C', marginBottom: '24px' }}>We will approve your listing soon.</p>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '28px', color: '#D4A017', marginBottom: '8px' }}>Application Successful!</h2>
+          <p style={{ color: '#A8A29E', marginBottom: '24px' }}>We will approve your listing soon.</p>
           <a href="/dashboard" style={{
-            backgroundColor: '#7A1515', color: '#FDF8F0',
+            backgroundColor: '#D4A017', color: '#1C1917',
             padding: '12px 28px', borderRadius: '10px',
             textDecoration: 'none', fontWeight: 600, fontSize: '15px'
           }}>Go to Dashboard</a>
@@ -109,32 +104,35 @@ export default function OnboardPage() {
     width: '100%',
     padding: '12px 16px',
     borderRadius: '10px',
-    border: '1.5px solid #E7D5C0',
+    border: '1.5px solid #1E4E6E',
     fontSize: '14px',
-    color: '#1C1917',
+    color: '#FDF8F0',
     fontFamily: "'DM Sans', sans-serif",
     outline: 'none',
     boxSizing: 'border-box',
-    backgroundColor: '#FDF8F0'
+    backgroundColor: '#0C3D5C'
   }
 
   const labelStyle = {
     display: 'block',
     fontSize: '12px',
     fontWeight: 600,
-    color: '#57534E',
+    color: '#A8A29E',
     marginBottom: '8px',
     letterSpacing: '0.06em',
     textTransform: 'uppercase'
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', padding: '40px 24px' }}>
-      <div style={{ maxWidth: '560px', margin: '0 auto', backgroundColor: '#FFFFFF', borderRadius: '24px', padding: '48px', border: '1px solid #F0E6D3', boxShadow: '0 4px 24px rgba(122,21,21,0.08)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#072940', padding: '40px 24px' }}>
+      <div style={{ maxWidth: '560px', margin: '0 auto', backgroundColor: '#0C3D5C', borderRadius: '24px', padding: '48px', border: '1px solid #1E4E6E' }}>
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', color: '#7A1515', marginBottom: '8px' }}>List Your Business</h1>
-          <p style={{ color: '#78716C', fontSize: '15px' }}>Join Bangalir Bajar — free for 2 months</p>
+          <div style={{ display: 'inline-block', backgroundColor: '#D4A017', color: '#1C1917', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', padding: '6px 14px', borderRadius: '50px', marginBottom: '16px' }}>
+            Business Portal
+          </div>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', color: '#FDF8F0', marginBottom: '8px' }}>List Your Business</h1>
+          <p style={{ color: '#A8A29E', fontSize: '15px' }}>Join এই শহরে — completely free</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -188,9 +186,9 @@ export default function OnboardPage() {
                 multiple
                 onChange={handleImageChange}
                 disabled={images.length >= 10}
-                style={{ fontSize: '14px', color: '#57534E', width: '100%' }}
+                style={{ fontSize: '14px', color: '#A8A29E', width: '100%' }}
               />
-              {uploading && <p style={{ fontSize: '13px', color: '#78716C', marginTop: '8px' }}>Uploading images...</p>}
+              {uploading && <p style={{ fontSize: '13px', color: '#A8A29E', marginTop: '8px' }}>Uploading images...</p>}
               {imageUrls.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '12px' }}>
                   {imageUrls.map((url, i) => (
@@ -199,34 +197,19 @@ export default function OnboardPage() {
                       <button
                         type="button"
                         onClick={() => removeImage(i)}
-                        style={{
-                          position: 'absolute', top: '4px', right: '4px',
-                          backgroundColor: '#7A1515', color: '#FDF8F0',
-                          border: 'none', borderRadius: '50%',
-                          width: '22px', height: '22px',
-                          cursor: 'pointer', fontSize: '11px'
-                        }}
+                        style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: '#D4A017', color: '#1C1917', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '11px' }}
                       >✕</button>
                     </div>
                   ))}
                 </div>
               )}
-              <p style={{ fontSize: '12px', color: '#A8A29E', marginTop: '6px' }}>{images.length}/10 images</p>
+              <p style={{ fontSize: '12px', color: '#57534E', marginTop: '6px' }}>{images.length}/10 images</p>
             </div>
 
             <button
               type="submit"
               disabled={loading || uploading}
-              style={{
-                width: '100%', padding: '14px',
-                backgroundColor: '#7A1515', color: '#FDF8F0',
-                border: 'none', borderRadius: '10px',
-                fontSize: '15px', fontWeight: 600,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontFamily: "'DM Sans', sans-serif",
-                opacity: loading ? 0.7 : 1,
-                marginTop: '8px'
-              }}
+              style={{ width: '100%', padding: '14px', backgroundColor: '#D4A017', color: '#1C1917', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans', sans-serif", opacity: loading ? 0.7 : 1, marginTop: '8px' }}
             >
               {loading ? 'Submitting...' : 'List My Business'}
             </button>

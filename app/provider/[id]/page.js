@@ -14,6 +14,7 @@ export default function ProviderPage({ params }) {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+  const [activeImage, setActiveImage] = useState(0)
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -83,102 +84,99 @@ export default function ProviderPage({ params }) {
     : null
 
   if (loading) return (
-    <div className="min-h-screen bg-red-50 flex items-center justify-center">
-      <p className="text-gray-600">Loading...</p>
+    <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: '#78716C' }}>Loading...</p>
     </div>
   )
 
   if (!provider) return (
-    <div className="min-h-screen bg-red-50 flex items-center justify-center">
-      <p className="text-gray-600">Provider not found.</p>
+    <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: '#78716C' }}>Provider not found.</p>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-red-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', padding: '32px 24px' }}>
+      <div style={{ maxWidth: '680px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-        <div className="bg-white rounded-2xl shadow p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-3xl">{provider.categories?.icon}</span>
-            <span className="text-sm text-gray-500">{provider.categories?.name}</span>
+        {/* Provider card */}
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', padding: '28px', border: '1px solid #F0E6D3', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '28px' }}>{provider.categories?.icon}</span>
+            <span style={{ fontSize: '13px', backgroundColor: '#FEE2E2', padding: '3px 10px', borderRadius: '50px', color: '#991B1B', fontWeight: 600 }}>{provider.categories?.name}</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">{provider.business_name}</h1>
-          <p className="text-gray-600">{provider.name}</p>
-          <p className="text-gray-600 mt-1">📍 {provider.area}</p>
+
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '26px', color: '#1C1917', marginBottom: '4px' }}>{provider.business_name}</h1>
+          <p style={{ fontSize: '14px', color: '#57534E', marginBottom: '2px' }}>{provider.name}</p>
+          <p style={{ fontSize: '14px', color: '#57534E', marginBottom: '12px' }}>📍 {provider.area}</p>
 
           {avgRating && (
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-yellow-400 text-xl">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <span style={{ color: '#FBBF24', fontSize: '18px' }}>
                 {'★'.repeat(Math.round(avgRating))}{'☆'.repeat(5 - Math.round(avgRating))}
               </span>
-              <span className="text-gray-700 font-medium">{avgRating}</span>
-              <span className="text-gray-400 text-sm">({reviews.length} reviews)</span>
+              <span style={{ fontWeight: 600, color: '#1C1917' }}>{avgRating}</span>
+              <span style={{ fontSize: '13px', color: '#A8A29E' }}>({reviews.length} reviews)</span>
             </div>
           )}
 
           {provider.description && (
-            <p className="text-gray-700 mt-4">{provider.description}</p>
+            <p style={{ fontSize: '15px', color: '#44403C', lineHeight: 1.7, marginBottom: '20px' }}>{provider.description}</p>
           )}
 
+          {/* Image gallery */}
           {provider.images && provider.images.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              {provider.images.map((url, i) => (
-                <img key={i} src={url} alt="provider" className="w-full h-28 object-cover rounded-lg" />
-              ))}
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ width: '100%', height: '240px', borderRadius: '12px', overflow: 'hidden', marginBottom: '8px' }}>
+                <img src={provider.images[activeImage]} alt="provider" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              {provider.images.length > 1 && (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {provider.images.map((url, i) => (
+                    <div
+                      key={i}
+                      onClick={() => setActiveImage(i)}
+                      style={{ width: '64px', height: '64px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: activeImage === i ? '2px solid #0369A1' : '2px solid transparent', opacity: activeImage === i ? 1 : 0.7, transition: 'all 0.15s' }}
+                    >
+                      <img src={url} alt="thumb" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          <div className="flex gap-3 mt-6">
-            <a
-              href={'tel:' + provider.phone}
-              className="flex-1 text-center bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium"
-            >
-              Call
-            </a>
+          {/* Action buttons — Call and WhatsApp only */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <a href={'tel:' + provider.phone} style={{
+              flex: 1, textAlign: 'center', backgroundColor: '#7A1515',
+              color: '#FDF8F0', padding: '12px', borderRadius: '10px',
+              fontWeight: 600, fontSize: '14px', textDecoration: 'none'
+            }}>📞 Call</a>
             {provider.whatsapp && (
-              <a
-                href={'https://wa.me/91' + provider.whatsapp}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 text-center bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium"
-              >
-                WhatsApp
-              </a>
+              <a href={'https://wa.me/91' + provider.whatsapp} target="_blank" rel="noreferrer" style={{
+                flex: 1, textAlign: 'center', backgroundColor: '#16A34A',
+                color: '#FDF8F0', padding: '12px', borderRadius: '10px',
+                fontWeight: 600, fontSize: '14px', textDecoration: 'none'
+              }}>💬 WhatsApp</a>
             )}
-            <a
-              href="/chat"
-              className="flex-1 text-center bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium"
-            >
-              Chat
-            </a>
           </div>
         </div>
 
+        {/* Review form */}
         {user ? (
-          <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-bold text-gray-800 mb-4">
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', padding: '28px', border: '1px solid #F0E6D3', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '20px', color: '#1C1917', marginBottom: '16px' }}>
               {userReview ? 'Update Your Review' : 'Leave a Review'}
             </h2>
 
-            <div className="flex gap-1 mb-4">
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '16px' }}>
               {[1, 2, 3, 4, 5].map(star => (
-                <button
-                  key={star}
-                  type="button"
-                  onMouseEnter={() => setHoveredStar(star)}
-                  onMouseLeave={() => setHoveredStar(0)}
-                  onClick={() => setRating(star)}
-                  className="text-3xl transition"
-                >
-                  <span className={star <= (hoveredStar || rating) ? 'text-yellow-400' : 'text-gray-300'}>
-                    ★
-                  </span>
+                <button key={star} type="button" onMouseEnter={() => setHoveredStar(star)} onMouseLeave={() => setHoveredStar(0)} onClick={() => setRating(star)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '32px', padding: '0 2px' }}>
+                  <span style={{ color: star <= (hoveredStar || rating) ? '#FBBF24' : '#D1D5DB' }}>★</span>
                 </button>
               ))}
-              {rating > 0 && (
-                <span className="ml-2 text-gray-600 text-sm self-center">{rating}/5</span>
-              )}
+              {rating > 0 && <span style={{ fontSize: '13px', color: '#78716C', alignSelf: 'center', marginLeft: '8px' }}>{rating}/5</span>}
             </div>
 
             <textarea
@@ -186,62 +184,50 @@ export default function ProviderPage({ params }) {
               onChange={(e) => setComment(e.target.value)}
               rows={3}
               placeholder="Share your experience (optional)"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+              style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1.5px solid #E7D5C0', fontSize: '14px', color: '#1C1917', fontFamily: "'DM Sans', sans-serif", outline: 'none', boxSizing: 'border-box', resize: 'vertical', backgroundColor: '#FDF8F0' }}
             />
 
-            {message && (
-              <p className="text-sm text-red-500 mt-2">{message}</p>
-            )}
+            {message && <p style={{ fontSize: '13px', color: '#059669', marginTop: '8px' }}>{message}</p>}
 
             <button
               onClick={submitReview}
               disabled={submitting}
-              className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition"
+              style={{ marginTop: '12px', width: '100%', padding: '13px', backgroundColor: '#0369A1', color: '#FDF8F0', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
             >
               {submitting ? 'Submitting...' : userReview ? 'Update Review' : 'Submit Review'}
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow p-6 text-center">
-            <p className="text-gray-600 mb-3">Login to leave a review</p>
-            <a
-              href="/login"
-              className="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium"
-            >
-              Login
-            </a>
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', padding: '28px', border: '1px solid #F0E6D3', textAlign: 'center' }}>
+            <p style={{ color: '#57534E', marginBottom: '16px' }}>Login to leave a review</p>
+            <a href="/login" style={{ backgroundColor: '#0369A1', color: '#FDF8F0', padding: '10px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '14px' }}>Login</a>
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow p-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">
+        {/* Reviews list */}
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', padding: '28px', border: '1px solid #F0E6D3', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '20px', color: '#1C1917', marginBottom: '20px' }}>
             Reviews {reviews.length > 0 && '(' + reviews.length + ')'}
           </h2>
           {reviews.length === 0 ? (
-            <p className="text-gray-400 text-sm">No reviews yet. Be the first!</p>
+            <p style={{ fontSize: '14px', color: '#A8A29E' }}>No reviews yet. Be the first!</p>
           ) : (
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {reviews.map(r => (
-                <div key={r.id} className="border-b border-gray-100 pb-4 last:border-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-yellow-400">
-                      {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {new Date(r.created_at).toLocaleDateString('en-IN')}
-                    </span>
+                <div key={r.id} style={{ borderBottom: '1px solid #F0E6D3', paddingBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <span style={{ color: '#FBBF24', fontSize: '16px' }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                    <span style={{ fontSize: '12px', color: '#A8A29E' }}>{new Date(r.created_at).toLocaleDateString('en-IN')}</span>
                   </div>
-                  {r.comment && (
-                    <p className="text-gray-700 text-sm">{r.comment}</p>
-                  )}
+                  {r.comment && <p style={{ fontSize: '14px', color: '#57534E', lineHeight: 1.6 }}>{r.comment}</p>}
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="text-center">
-          <a href="/" className="text-red-600 hover:underline text-sm">Back to Directory</a>
+        <div style={{ textAlign: 'center' }}>
+          <a href="/" style={{ color: '#0369A1', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}>← Back to Marketplace</a>
         </div>
       </div>
     </div>

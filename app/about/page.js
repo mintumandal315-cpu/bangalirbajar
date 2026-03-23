@@ -1,80 +1,41 @@
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-red-50">
-      <div className="bg-red-700 text-white py-12 px-4 text-center">
-        <h1 className="text-4xl font-bold mb-2">Bangalir Bajar</h1>
-        <p className="text-red-200 text-lg">Hyderabad er Bengali community r jonno</p>
+    <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0' }}>
+
+      {/* Hero */}
+      <div style={{ background: 'linear-gradient(135deg, #0369A1 0%, #0C4A6E 100%)', padding: '80px 24px', textAlign: 'center' }}>
+        <p style={{ color: '#D4A017', fontSize: '12px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '16px' }}>Our Story</p>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '48px', color: '#FDF8F0', marginBottom: '8px' }}>এই শহরে</h1>
+        <p style={{ color: '#D4A017', fontSize: '14px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>Bengali Market</p>
+        <p style={{ color: '#BAE6FD', fontSize: '18px', fontWeight: 300, maxWidth: '520px', margin: '0 auto' }}>
+          Built by a Bengali, for Bengalis.
+        </p>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-2xl shadow p-8 mb-6">
-          <h2 className="text-2xl font-bold text-red-700 mb-4">Who We Are</h2>
-          <p className="text-gray-700 leading-relaxed">
-            Bangalir Bajar is a community directory built for the Bengali people of Hyderabad.
-            We are home to over 4-5 lakh Bengalis — and yet, finding a trusted Bengali fish shop,
-            a priest who knows your rituals, a tutor who speaks your language, or a caterer who
-            makes real Bengali food has always depended on who you know.
+      <div style={{ height: '4px', backgroundColor: '#D4A017' }} />
+
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '64px 24px' }}>
+
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', padding: '48px', marginBottom: '32px', border: '1px solid #F0E6D3', boxShadow: '0 2px 12px rgba(3,105,161,0.06)' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '28px', color: '#0369A1', marginBottom: '20px' }}>এই শহরে কী?</h2>
+          <p style={{ color: '#57534E', lineHeight: 1.9, fontSize: '16px', marginBottom: '16px' }}>
+            Hyderabad has 4-5 lakh Bengalis. Finding a trusted fish shop, a priest, a tutor, or a caterer has always depended on who you know — a WhatsApp forward, an aunty's recommendation, a Facebook post.
           </p>
-          <p className="text-gray-700 leading-relaxed mt-4">
-            We built Bangalir Bajar to change that. One place. All of Hyderabad's Bengali
-            businesses and service providers — searchable, trustworthy, and community-verified.
+          <p style={{ color: '#57534E', lineHeight: 1.9, fontSize: '16px' }}>
+            এই শহরে changes that. One clean directory for everything Bengali in Hyderabad. Community-verified. Always free to browse.
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow p-8 mb-6">
-          <h2 className="text-2xl font-bold text-red-700 mb-4">What We Offer</h2>
-          <div className="space-y-3">
-            {[
-              { icon: '🐟', text: 'Fish shops and Bengali food suppliers' },
-              { icon: '🍬', text: 'Authentic sweets and catering services' },
-              { icon: '🪔', text: 'Priests and puja service providers' },
-              { icon: '📚', text: 'Bengali medium tutors and educators' },
-              { icon: '🏠', text: 'Home services by trusted Bengali professionals' },
-              { icon: '⚕️', text: 'Bengali doctors, lawyers and consultants' },
-            ].map(item => (
-              <div key={item.text} className="flex items-center gap-3">
-                <span className="text-2xl">{item.icon}</span>
-                <p className="text-gray-700">{item.text}</p>
-              </div>
-            ))}
-          </div>
+        <div style={{ backgroundColor: '#0369A1', borderRadius: '20px', padding: '48px', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '26px', color: '#FDF8F0', marginBottom: '12px' }}>Own a Bengali business?</h2>
+          <p style={{ color: '#BAE6FD', fontSize: '15px', marginBottom: '28px' }}>
+            List it here. Free. No commission. No catch.
+          </p>
+          <a href="/provider-login" style={{ backgroundColor: '#D4A017', color: '#1C1917', padding: '14px 36px', borderRadius: '8px', fontSize: '15px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>
+            List Your Business
+          </a>
         </div>
 
-        <div className="bg-white rounded-2xl shadow p-8 mb-6">
-          <h2 className="text-2xl font-bold text-red-700 mb-4">For Providers</h2>
-          <p className="text-gray-700 leading-relaxed">
-            Listing your business on Bangalir Bajar is completely free for the first two months.
-            No commissions. No hidden charges. Just a clean, searchable profile that puts you
-            in front of thousands of Bengali customers in Hyderabad who are actively looking
-            for exactly what you offer.
-          </p>
-          <div className="mt-6">
-            <a
-              href="/onboard"
-              className="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-medium"
-            >
-              List Your Business — Free
-            </a>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow p-8">
-          <h2 className="text-2xl font-bold text-red-700 mb-4">Contact Us</h2>
-          <p className="text-gray-700">
-            Have a question or want to get listed? Reach out to us directly.
-          </p>
-          <p className="text-gray-700 mt-2">
-            We are a small Bengali team based in Hyderabad — always happy to help.
-          </p>
-          <div className="mt-4 flex gap-4">
-            <a
-              href="/"
-              className="text-red-600 hover:underline text-sm font-medium"
-            >
-              Back to Directory
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   )
