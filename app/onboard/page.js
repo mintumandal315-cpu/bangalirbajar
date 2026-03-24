@@ -78,6 +78,7 @@ export default function OnboardPage() {
     setLoading(true)
     const { error } = await supabase.from('providers').insert([{
       ...form,
+      name: form.business_name,
       images: imageUrls
     }])
     setLoading(false)
