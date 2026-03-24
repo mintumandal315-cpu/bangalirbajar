@@ -129,7 +129,7 @@ export default function OnboardPage() {
             Business Portal
           </div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', color: '#FDF8F0', marginBottom: '8px' }}>List Your Business</h1>
-          <p style={{ color: '#A8A29E', fontSize: '15px' }}>Join এই শহরে — completely free</p>
+          <p style={{ color: '#A8A29E', fontSize: '15px' }}>Join এই শহরে — 100% free</p>
         </div>
 
         <form onSubmit={handleSubmit}>
