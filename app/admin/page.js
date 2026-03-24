@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../utils/supabase'
 
 export default function AdminPage() {
+  const [authorized, setAuthorized] = useState(false)
+  const [adminPassword, setAdminPassword] = useState('')
   const [providers, setProviders] = useState([])
   const [notes, setNotes] = useState({})
   const [filter, setFilter] = useState('pending')
@@ -21,8 +23,8 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    fetchProviders()
-  }, [filter])
+    if (authorized) fetchProviders()
+  }, [filter, authorized])
 
   const approve = async (id) => {
     await supabase.from('providers').update({ is_approved: true }).eq('id', id)
@@ -30,7 +32,6 @@ export default function AdminPage() {
   }
 
   const remove = async (id) => {
-    if (!confirm('Are you sure you want to delete this listing?')) return
     await supabase.from('providers').delete().eq('id', id)
     fetchProviders()
   }
@@ -46,6 +47,48 @@ export default function AdminPage() {
     fetchProviders()
   }
 
+  if (!authorized) return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#072940', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ backgroundColor: '#0C3D5C', padding: '48px 40px', borderRadius: '20px', border: '1px solid #1E4E6E', textAlign: 'center', width: '100%', maxWidth: '380px' }}>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '24px', color: '#FDF8F0', marginBottom: '8px' }}>Admin Access</h2>
+        <p style={{ color: '#A8A29E', fontSize: '14px', marginBottom: '28px' }}>এই শহরে — Admin Only</p>
+        <input
+          type="password"
+          value={adminPassword}
+          onChange={(e) => setAdminPassword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              if (adminPassword === 'EiSohore@Admin2025') setAuthorized(true)
+              else alert('Wrong password')
+            }
+          }}
+          placeholder="Enter admin password"
+          style={{
+            width: '100%', padding: '13px 16px', borderRadius: '10px',
+            border: '1.5px solid #1E4E6E', backgroundColor: '#072940',
+            color: '#FDF8F0', fontSize: '15px', outline: 'none',
+            fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box',
+            marginBottom: '16px'
+          }}
+        />
+        <button
+          onClick={() => {
+            if (adminPassword === 'EiSohore@Admin2025') setAuthorized(true)
+            else alert('Wrong password')
+          }}
+          style={{
+            width: '100%', padding: '13px', backgroundColor: '#D4A017',
+            color: '#1C1917', border: 'none', borderRadius: '10px',
+            fontSize: '15px', fontWeight: 700, cursor: 'pointer',
+            fontFamily: "'DM Sans', sans-serif"
+          }}
+        >
+          Enter Dashboard
+        </button>
+      </div>
+    </div>
+  )
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5', padding: '32px 24px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -60,12 +103,8 @@ export default function AdminPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 style={{
-                  padding: '8px 18px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
+                  padding: '8px 18px', borderRadius: '8px', border: 'none',
+                  fontSize: '13px', fontWeight: 600, cursor: 'pointer',
                   fontFamily: "'DM Sans', sans-serif",
                   backgroundColor: filter === f ? '#7A1515' : '#FFFFFF',
                   color: filter === f ? '#FDF8F0' : '#57534E',
@@ -76,14 +115,21 @@ export default function AdminPage() {
               </button>
             ))}
             <a href="/admin/analytics" style={{
-              padding: '8px 18px',
-              borderRadius: '8px',
-              backgroundColor: '#D4A017',
-              color: '#1C1917',
-              fontSize: '13px',
-              fontWeight: 600,
-              textDecoration: 'none'
+              padding: '8px 18px', borderRadius: '8px',
+              backgroundColor: '#D4A017', color: '#1C1917',
+              fontSize: '13px', fontWeight: 600, textDecoration: 'none'
             }}>Analytics</a>
+            <button
+              onClick={() => setAuthorized(false)}
+              style={{
+                padding: '8px 18px', borderRadius: '8px', border: 'none',
+                fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                fontFamily: "'DM Sans', sans-serif",
+                backgroundColor: '#FEE2E2', color: '#991B1B'
+              }}
+            >
+              Lock
+            </button>
           </div>
         </div>
 
@@ -93,11 +139,8 @@ export default function AdminPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {providers.map(p => (
               <div key={p.id} style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '16px',
-                padding: '24px',
-                border: '1px solid #F0E6D3',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                backgroundColor: '#FFFFFF', borderRadius: '16px', padding: '24px',
+                border: '1px solid #F0E6D3', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 opacity: p.is_active ? 1 : 0.6
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
@@ -121,7 +164,8 @@ export default function AdminPage() {
                       </span>
                     </div>
                     <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '18px', color: '#1C1917', marginBottom: '2px' }}>{p.business_name}</h2>
-                    <p style={{ fontSize: '13px', color: '#57534E' }}>{p.name} · {p.area}</p>
+                    {p.tagline && <p style={{ fontSize: '13px', color: '#D4A017', marginBottom: '2px' }}>{p.tagline}</p>}
+                    <p style={{ fontSize: '13px', color: '#57534E' }}>{p.area}</p>
                     <p style={{ fontSize: '13px', color: '#57534E' }}>📞 {p.phone}{p.whatsapp ? ' · WhatsApp: ' + p.whatsapp : ''}</p>
                     {p.description && <p style={{ fontSize: '13px', color: '#78716C', marginTop: '6px' }}>{p.description}</p>}
                     {p.admin_notes && (
@@ -131,37 +175,14 @@ export default function AdminPage() {
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '120px' }}>
                     {!p.is_approved && (
-                      <button
-                        onClick={() => approve(p.id)}
-                        style={{
-                          padding: '8px 16px', backgroundColor: '#059669', color: '#FDF8F0',
-                          border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-                          cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
-                        }}
-                      >
+                      <button onClick={() => approve(p.id)} style={{ padding: '8px 16px', backgroundColor: '#059669', color: '#FDF8F0', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
                         Approve
                       </button>
                     )}
-                    <button
-                      onClick={() => toggleVisibility(p.id, p.is_active)}
-                      style={{
-                        padding: '8px 16px',
-                        backgroundColor: p.is_active ? '#FEF3C7' : '#D1FAE5',
-                        color: p.is_active ? '#92400E' : '#065F46',
-                        border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-                        cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
-                      }}
-                    >
+                    <button onClick={() => toggleVisibility(p.id, p.is_active)} style={{ padding: '8px 16px', backgroundColor: p.is_active ? '#FEF3C7' : '#D1FAE5', color: p.is_active ? '#92400E' : '#065F46', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
                       {p.is_active ? 'Hide' : 'Show'}
                     </button>
-                    <button
-                      onClick={() => remove(p.id)}
-                      style={{
-                        padding: '8px 16px', backgroundColor: '#FEE2E2', color: '#991B1B',
-                        border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-                        cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
-                      }}
-                    >
+                    <button onClick={() => remove(p.id)} style={{ padding: '8px 16px', backgroundColor: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
                       Delete
                     </button>
                   </div>
@@ -173,20 +194,9 @@ export default function AdminPage() {
                     placeholder="Add a note for this provider..."
                     defaultValue={p.admin_notes || ''}
                     onChange={(e) => setNotes({ ...notes, [p.id]: e.target.value })}
-                    style={{
-                      flex: 1, padding: '10px 14px', borderRadius: '8px',
-                      border: '1.5px solid #E7D5C0', fontSize: '13px',
-                      color: '#1C1917', fontFamily: "'DM Sans', sans-serif", outline: 'none'
-                    }}
+                    style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #E7D5C0', fontSize: '13px', color: '#1C1917', fontFamily: "'DM Sans', sans-serif", outline: 'none' }}
                   />
-                  <button
-                    onClick={() => sendNote(p.id)}
-                    style={{
-                      padding: '10px 20px', backgroundColor: '#7A1515', color: '#FDF8F0',
-                      border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-                      cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
-                    }}
-                  >
+                  <button onClick={() => sendNote(p.id)} style={{ padding: '10px 20px', backgroundColor: '#7A1515', color: '#FDF8F0', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
                     Save Note
                   </button>
                 </div>
