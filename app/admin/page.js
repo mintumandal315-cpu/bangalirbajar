@@ -4,10 +4,21 @@ import { supabase } from '../../utils/supabase'
 
 export default function AdminPage() {
   const [authorized, setAuthorized] = useState(false)
-  const [adminPassword, setAdminPassword] = useState('')
+  const [checking, setChecking] = useState(true)
   const [providers, setProviders] = useState([])
   const [notes, setNotes] = useState({})
   const [filter, setFilter] = useState('pending')
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && user.email === 'mintumandal315@gmail.com') {
+        setAuthorized(true)
+      }
+      setChecking(false)
+    }
+    checkAdmin()
+  }, [])
 
   const fetchProviders = async () => {
     let query = supabase
@@ -47,44 +58,21 @@ export default function AdminPage() {
     fetchProviders()
   }
 
+  if (checking) return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#072940', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: '#A8A29E' }}>Checking access...</p>
+    </div>
+  )
+
   if (!authorized) return (
     <div style={{ minHeight: '100vh', backgroundColor: '#072940', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ backgroundColor: '#0C3D5C', padding: '48px 40px', borderRadius: '20px', border: '1px solid #1E4E6E', textAlign: 'center', width: '100%', maxWidth: '380px' }}>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '24px', color: '#FDF8F0', marginBottom: '8px' }}>Admin Access</h2>
-        <p style={{ color: '#A8A29E', fontSize: '14px', marginBottom: '28px' }}>এই শহরে — Admin Only</p>
-        <input
-          type="password"
-          value={adminPassword}
-          onChange={(e) => setAdminPassword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              if (adminPassword === 'EiSohore@Admin2025') setAuthorized(true)
-              else alert('Wrong password')
-            }
-          }}
-          placeholder="Enter admin password"
-          style={{
-            width: '100%', padding: '13px 16px', borderRadius: '10px',
-            border: '1.5px solid #1E4E6E', backgroundColor: '#072940',
-            color: '#FDF8F0', fontSize: '15px', outline: 'none',
-            fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box',
-            marginBottom: '16px'
-          }}
-        />
-        <button
-          onClick={() => {
-            if (adminPassword === 'EiSohore@Admin2025') setAuthorized(true)
-            else alert('Wrong password')
-          }}
-          style={{
-            width: '100%', padding: '13px', backgroundColor: '#D4A017',
-            color: '#1C1917', border: 'none', borderRadius: '10px',
-            fontSize: '15px', fontWeight: 700, cursor: 'pointer',
-            fontFamily: "'DM Sans', sans-serif"
-          }}
-        >
-          Enter Dashboard
-        </button>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '24px', color: '#FDF8F0', marginBottom: '8px' }}>Access Denied</h2>
+        <p style={{ color: '#A8A29E', fontSize: '14px', marginBottom: '28px' }}>You don't have permission to access this page.</p>
+        <a href="/" style={{ backgroundColor: '#D4A017', color: '#1C1917', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700, fontSize: '14px' }}>
+          Go to Homepage
+        </a>
       </div>
     </div>
   )
@@ -119,17 +107,6 @@ export default function AdminPage() {
               backgroundColor: '#D4A017', color: '#1C1917',
               fontSize: '13px', fontWeight: 600, textDecoration: 'none'
             }}>Analytics</a>
-            <button
-              onClick={() => setAuthorized(false)}
-              style={{
-                padding: '8px 18px', borderRadius: '8px', border: 'none',
-                fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-                fontFamily: "'DM Sans', sans-serif",
-                backgroundColor: '#FEE2E2', color: '#991B1B'
-              }}
-            >
-              Lock
-            </button>
           </div>
         </div>
 
