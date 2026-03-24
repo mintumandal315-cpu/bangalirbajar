@@ -11,7 +11,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data } = await supabase.from('categories').select('*')
+      const { data } = await supabase.from('categories').select('*').order('slug')
       setCategories(data || [])
     }
     fetchCategories()
@@ -60,143 +60,201 @@ export default function HomePage() {
   }, [selectedCategory, search])
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F0EBE3' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0A0F1E' }}>
 
       {/* Hero */}
       <div style={{
-        position: 'relative',
-        padding: '100px 24px 80px',
-        textAlign: 'center',
-        overflow: 'hidden',
-        minHeight: '480px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
+        position: 'relative', padding: '100px 24px 80px',
+        textAlign: 'center', overflow: 'hidden',
+        minHeight: '500px', display: 'flex',
+        flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
       }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'url(https://images.pexels.com/photos/5622816/pexels-photo-5622816.jpeg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.55)' }} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(212,160,23,0.15) 0%, transparent 50%)', pointerEvents: 'none' }} />
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundImage: 'url(https://images.pexels.com/photos/5622816/pexels-photo-5622816.jpeg)',
+          backgroundSize: 'cover', backgroundPosition: 'center'
+        }} />
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'linear-gradient(to bottom, rgba(10,15,30,0.7) 0%, rgba(10,15,30,0.85) 100%)'
+        }} />
 
         <div style={{ position: 'relative', zIndex: 2 }}>
-          {/* Small Bengali script above */}
-          <p style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: '26px',
-            fontWeight: 400,
-            color: '#D4A017',
-            marginBottom: '8px',
-            letterSpacing: '0.05em'
-          }}>এই শহরে</p>
-
-          {/* Large bold English below */}
+          <p style={{ color: '#D4A017', fontSize: '11px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '20px' }}>
+            Hyderabad · Bengali Community
+          </p>
           <h1 style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: '58px',
-            fontWeight: 700,
-            color: '#FDF8F0',
-            lineHeight: 1.1,
-            marginBottom: '16px',
-            textShadow: '0 2px 20px rgba(0,0,0,0.4)'
-          }}>Bengali Marketplace</h1>
-
-          <p style={{ color: '#F5D9A0', fontSize: '16px', fontWeight: 300, marginBottom: '40px', letterSpacing: '0.05em' }}>
+            fontSize: '64px', fontWeight: 700,
+            color: '#FFFFFF', lineHeight: 1.05, marginBottom: '16px',
+            textShadow: '0 4px 30px rgba(0,0,0,0.5)'
+          }}>এই শহরে</h1>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '17px', fontWeight: 300, marginBottom: '44px' }}>
             Fish · Groceries · Priests · Tutors · Caterers · and more
           </p>
 
-          <div style={{ maxWidth: '520px', margin: '0 auto', position: 'relative' }}>
+          <div style={{ maxWidth: '540px', margin: '0 auto', position: 'relative' }}>
             <input
               type="text"
-              placeholder="Search for fish shops, priests, tutors..."
+              placeholder="Search businesses, services..."
               onChange={(e) => setSearch(e.target.value)}
-              style={{ width: '100%', padding: '16px 52px 16px 24px', borderRadius: '50px', border: 'none', fontSize: '15px', backgroundColor: 'rgba(253,248,240,0.95)', color: '#1C1917', outline: 'none', boxSizing: 'border-box', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', fontFamily: "'DM Sans', sans-serif" }}
+              style={{
+                width: '100%', padding: '17px 56px 17px 24px',
+                borderRadius: '50px', border: '1px solid rgba(212,160,23,0.3)',
+                fontSize: '15px', backgroundColor: 'rgba(255,255,255,0.1)',
+                color: '#FFFFFF', outline: 'none', boxSizing: 'border-box',
+                backdropFilter: 'blur(10px)', fontFamily: "'DM Sans', sans-serif"
+              }}
             />
-            <span style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px' }}>🔍</span>
+            <span style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px', opacity: 0.7 }}>🔍</span>
           </div>
 
-          <div style={{ marginTop: '20px' }}>
-            <span style={{ color: '#F5D9A0', fontSize: '13px', opacity: 0.9 }}>
-              {providers.length > 0 ? providers.length + ' businesses listed' : 'Be the first to list your business'}
-            </span>
-          </div>
+          <p style={{ color: 'rgba(212,160,23,0.8)', fontSize: '13px', marginTop: '20px' }}>
+            {providers.length > 0 ? providers.length + ' businesses listed in Hyderabad' : ''}
+          </p>
         </div>
       </div>
 
-      <div style={{ backgroundColor: '#D4A017', height: '4px' }} />
+      <div style={{ backgroundColor: '#D4A017', height: '3px' }} />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '36px 24px' }}>
+      <div style={{ backgroundColor: '#0A0F1E', minHeight: '100vh' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
 
-        {/* Category pills */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px', justifyContent: 'center' }}>
-          <button
-            onClick={() => setSelectedCategory('all')}
-            style={{ padding: '8px 18px', borderRadius: '50px', border: selectedCategory === 'all' ? 'none' : '1.5px solid #C9B99A', backgroundColor: selectedCategory === 'all' ? '#0369A1' : '#E8DFD0', color: selectedCategory === 'all' ? '#FDF8F0' : '#57534E', fontSize: '13px', fontWeight: 500, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
-          >All</button>
-          {categories.map(cat => (
+          {/* Category pills */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '40px', justifyContent: 'center' }}>
             <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              style={{ padding: '8px 18px', borderRadius: '50px', border: selectedCategory === cat.id ? 'none' : '1.5px solid #C9B99A', backgroundColor: selectedCategory === cat.id ? '#0369A1' : '#E8DFD0', color: selectedCategory === cat.id ? '#FDF8F0' : '#57534E', fontSize: '13px', fontWeight: 500, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
-            >{cat.icon} {cat.name}</button>
-          ))}
-        </div>
-
-        {/* Provider grid */}
-        {providers.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔍</div>
-            <p style={{ fontSize: '18px', fontFamily: "'Playfair Display', serif", color: '#78716C' }}>No listings found</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
-            {providers.map(p => (
-              <a
-                key={p.id}
-                href={'/provider/' + p.id}
-                style={{ backgroundColor: '#E8DDD0', borderRadius: '14px', padding: '18px 20px', textDecoration: 'none', display: 'block', border: '1px solid #D4C4B0', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', transition: 'all 0.2s', cursor: 'pointer' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)' }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)' }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '22px' }}>{p.categories?.icon}</span>
-                    <span style={{ fontSize: '11px', color: '#78716C', fontWeight: 600 }}>{p.categories?.name}</span>
-                  </div>
-                  {ratings[p.id] && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      <span style={{ color: '#FBBF24', fontSize: '13px' }}>★</span>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#1C1917' }}>{ratings[p.id].avg}</span>
-                      <span style={{ fontSize: '11px', color: '#78716C' }}>({ratings[p.id].count})</span>
-                    </div>
-                  )}
-                </div>
-
-                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '17px', fontWeight: 600, color: '#1C1917', marginBottom: '3px', lineHeight: 1.3 }}>{p.business_name}</h2>
-                <p style={{ fontSize: '12px', color: '#57534E', marginBottom: '2px' }}>{p.name}</p>
-                <p style={{ fontSize: '12px', color: '#57534E', marginBottom: '10px' }}>📍 {p.area}</p>
-
-                {p.description && (
-                  <p style={{ fontSize: '12px', color: '#6B6560', lineHeight: 1.5, marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {p.description}
-                  </p>
-                )}
-
-                <div style={{ borderTop: '1px solid #C9B99A', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '12px', color: '#0369A1', fontWeight: 600 }}>View Profile →</span>
-                  <span style={{ fontSize: '11px', color: '#78716C' }}>📞 {p.phone}</span>
-                </div>
-              </a>
+              onClick={() => setSelectedCategory('all')}
+              style={{
+                padding: '9px 20px', borderRadius: '50px',
+                border: selectedCategory === 'all' ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                backgroundColor: selectedCategory === 'all' ? '#D4A017' : 'rgba(255,255,255,0.05)',
+                color: selectedCategory === 'all' ? '#0A0F1E' : 'rgba(255,255,255,0.7)',
+                fontSize: '13px', fontWeight: selectedCategory === 'all' ? 700 : 400,
+                cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
+              }}
+            >All</button>
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                style={{
+                  padding: '9px 20px', borderRadius: '50px',
+                  border: selectedCategory === cat.id ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                  backgroundColor: selectedCategory === cat.id ? '#D4A017' : 'rgba(255,255,255,0.05)',
+                  color: selectedCategory === cat.id ? '#0A0F1E' : 'rgba(255,255,255,0.7)',
+                  fontSize: '13px', fontWeight: selectedCategory === cat.id ? 700 : 400,
+                  cursor: 'pointer', fontFamily: "'DM Sans', sans-serif"
+                }}
+              >{cat.icon} {cat.name}</button>
             ))}
           </div>
-        )}
 
-        {/* CTA */}
-        <div style={{ marginTop: '60px', backgroundColor: '#0369A1', borderRadius: '20px', padding: '48px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'radial-gradient(circle at 80% 50%, rgba(212,160,23,0.15) 0%, transparent 60%)', pointerEvents: 'none' }} />
-          <p style={{ color: '#D4A017', fontSize: '12px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '12px' }}>For Business Owners</p>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', color: '#FDF8F0', marginBottom: '12px' }}>List Your Business — Free</h2>
-          <p style={{ color: '#BAE6FD', fontSize: '15px', marginBottom: '28px', maxWidth: '480px', margin: '0 auto 28px' }}>Reach thousands of Bengali customers in Hyderabad.</p>
-          <a href="/provider-login" style={{ backgroundColor: '#D4A017', color: '#1C1917', padding: '13px 32px', borderRadius: '8px', fontSize: '15px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>Get Listed Today</a>
+          {/* Provider grid */}
+          {providers.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '80px 0' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+              <p style={{ fontSize: '18px', fontFamily: "'Playfair Display', serif", color: 'rgba(255,255,255,0.4)' }}>No listings found</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+              {providers.map(p => (
+                <a
+                  key={p.id}
+                  href={'/provider/' + p.id}
+                  style={{
+                    backgroundColor: '#141929', borderRadius: '16px', padding: '24px',
+                    textDecoration: 'none', display: 'block',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    transition: 'all 0.25s', cursor: 'pointer',
+                    position: 'relative', overflow: 'hidden'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-4px)'
+                    e.currentTarget.style.border = '1px solid rgba(212,160,23,0.4)'
+                    e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.4)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }}
+                >
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: '#D4A017', borderRadius: '16px 16px 0 0' }} />
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+                    <div style={{
+                      backgroundColor: 'rgba(212,160,23,0.12)', borderRadius: '10px',
+                      width: '48px', height: '48px', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center',
+                      fontSize: '24px', border: '1px solid rgba(212,160,23,0.2)'
+                    }}>
+                      {p.categories?.icon}
+                    </div>
+                    {ratings[p.id] && (
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: '3px',
+                        backgroundColor: 'rgba(251,191,36,0.12)', padding: '4px 9px',
+                        borderRadius: '20px', border: '1px solid rgba(251,191,36,0.2)'
+                      }}>
+                        <span style={{ color: '#FBBF24', fontSize: '12px' }}>★</span>
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#FBBF24' }}>{ratings[p.id].avg}</span>
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>({ratings[p.id].count})</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <h2 style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: '19px', fontWeight: 600,
+                    color: '#FFFFFF', marginBottom: '4px', lineHeight: 1.3
+                  }}>{p.business_name}</h2>
+
+                  {p.tagline && (
+                    <p style={{ fontSize: '13px', color: '#D4A017', marginBottom: '8px', fontWeight: 500 }}>{p.tagline}</p>
+                  )}
+
+                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>
+                    📍 {p.area}
+                  </p>
+
+                  <div style={{
+                    borderTop: '1px solid rgba(255,255,255,0.07)',
+                    paddingTop: '14px', display: 'flex',
+                    justifyContent: 'space-between', alignItems: 'center'
+                  }}>
+                    <span style={{ fontSize: '12px', color: '#D4A017', fontWeight: 600 }}>View Profile →</span>
+                    <span style={{
+                      fontSize: '11px', color: 'rgba(255,255,255,0.3)',
+                      backgroundColor: 'rgba(255,255,255,0.05)',
+                      padding: '3px 8px', borderRadius: '20px'
+                    }}>{p.categories?.name}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* CTA */}
+          <div style={{
+            marginTop: '80px',
+            background: 'linear-gradient(135deg, #0C3D5C 0%, #072940 100%)',
+            borderRadius: '20px', padding: '56px 40px',
+            textAlign: 'center', border: '1px solid rgba(212,160,23,0.2)',
+            position: 'relative', overflow: 'hidden'
+          }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: '#D4A017' }} />
+            <p style={{ color: '#D4A017', fontSize: '11px', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '16px' }}>For Business Owners</p>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '34px', color: '#FFFFFF', marginBottom: '12px' }}>List Your Business — Free</h2>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '15px', marginBottom: '32px', maxWidth: '440px', margin: '0 auto 32px' }}>
+              Reach thousands of Bengali customers in Hyderabad.
+            </p>
+            <a href="/provider-login" style={{
+              backgroundColor: '#D4A017', color: '#0A0F1E',
+              padding: '14px 36px', borderRadius: '8px',
+              fontSize: '15px', fontWeight: 700,
+              textDecoration: 'none', display: 'inline-block'
+            }}>Get Listed Today</a>
+          </div>
         </div>
       </div>
     </div>
