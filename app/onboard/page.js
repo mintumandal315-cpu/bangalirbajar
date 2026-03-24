@@ -10,13 +10,14 @@ export default function OnboardPage() {
   const [imageUrls, setImageUrls] = useState([])
   const [uploading, setUploading] = useState(false)
   const [form, setForm] = useState({
-    name: '',
     business_name: '',
+    tagline: '',
     category_id: '',
     phone: '',
     whatsapp: '',
     area: '',
     description: '',
+    maps_link: '',
     email: '',
   })
 
@@ -28,7 +29,7 @@ export default function OnboardPage() {
         return
       }
       setForm(f => ({ ...f, email: user.email }))
-      const { data } = await supabase.from('categories').select('*')
+      const { data } = await supabase.from('categories').select('*').order('slug')
       setCategories(data || [])
     }
     init()
@@ -90,11 +91,7 @@ export default function OnboardPage() {
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '28px', color: '#D4A017', marginBottom: '8px' }}>Application Successful!</h2>
           <p style={{ color: '#A8A29E', marginBottom: '24px' }}>We will approve your listing soon.</p>
-          <a href="/dashboard" style={{
-            backgroundColor: '#D4A017', color: '#1C1917',
-            padding: '12px 28px', borderRadius: '10px',
-            textDecoration: 'none', fontWeight: 600, fontSize: '15px'
-          }}>Go to Dashboard</a>
+          <a href="/dashboard" style={{ backgroundColor: '#D4A017', color: '#1C1917', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 600, fontSize: '15px' }}>Go to Dashboard</a>
         </div>
       </div>
     )
@@ -139,13 +136,13 @@ export default function OnboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
             <div>
-              <label style={labelStyle}>Your Name *</label>
-              <input name="name" required onChange={handleChange} style={inputStyle} placeholder="Your full name" />
+              <label style={labelStyle}>Business Name *</label>
+              <input name="business_name" required onChange={handleChange} style={inputStyle} placeholder="Your shop or service name" />
             </div>
 
             <div>
-              <label style={labelStyle}>Business Name *</label>
-              <input name="business_name" required onChange={handleChange} style={inputStyle} placeholder="Your shop or service name" />
+              <label style={labelStyle}>One Line Description *</label>
+              <input name="tagline" required onChange={handleChange} style={inputStyle} placeholder="e.g. Fresh ilish and Bengali fish every day" />
             </div>
 
             <div>
@@ -174,8 +171,14 @@ export default function OnboardPage() {
             </div>
 
             <div>
-              <label style={labelStyle}>Description</label>
-              <textarea name="description" onChange={handleChange} rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Tell us about your service" />
+              <label style={labelStyle}>Google Maps Link</label>
+              <input name="maps_link" onChange={handleChange} style={inputStyle} placeholder="Paste your Google Maps link here" />
+              <p style={{ fontSize: '11px', color: '#57534E', marginTop: '4px' }}>Open Google Maps → find your location → Share → Copy link</p>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Full Description</label>
+              <textarea name="description" onChange={handleChange} rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Tell customers more about your service" />
             </div>
 
             <div>
@@ -194,11 +197,7 @@ export default function OnboardPage() {
                   {imageUrls.map((url, i) => (
                     <div key={i} style={{ position: 'relative' }}>
                       <img src={url} alt="preview" style={{ width: '100%', height: '90px', objectFit: 'cover', borderRadius: '8px' }} />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(i)}
-                        style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: '#D4A017', color: '#1C1917', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '11px' }}
-                      >✕</button>
+                      <button type="button" onClick={() => removeImage(i)} style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: '#D4A017', color: '#1C1917', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '11px' }}>✕</button>
                     </div>
                   ))}
                 </div>
