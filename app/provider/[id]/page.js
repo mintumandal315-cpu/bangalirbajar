@@ -15,6 +15,7 @@ export default function ProviderPage({ params }) {
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState('')
   const [activeImage, setActiveImage] = useState(0)
+  const [lightbox, setLightbox] = useState(false)
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -97,6 +98,49 @@ export default function ProviderPage({ params }) {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#FDF8F0', padding: '32px 24px' }}>
+
+      {/* Lightbox */}
+      {lightbox && provider.images && provider.images.length > 0 && (
+        <div
+          onClick={() => setLightbox(false)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.92)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            gap: '16px'
+          }}
+        >
+          <img
+            src={provider.images[activeImage]}
+            alt="full view"
+            style={{ maxWidth: '90vw', maxHeight: '75vh', objectFit: 'contain', borderRadius: '12px' }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          {provider.images.length > 1 && (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {provider.images.map((url, i) => (
+                <div
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setActiveImage(i) }}
+                  style={{
+                    width: '56px', height: '56px', borderRadius: '8px', overflow: 'hidden',
+                    cursor: 'pointer', border: activeImage === i ? '2px solid #D4A017' : '2px solid transparent',
+                    opacity: activeImage === i ? 1 : 0.6
+                  }}
+                >
+                  <img src={url} alt="thumb" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ))}
+            </div>
+          )}
+          <p style={{ color: '#A8A29E', fontSize: '13px' }}>Click anywhere to close</p>
+        </div>
+      )}
+
       <div style={{ maxWidth: '680px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Provider card */}
@@ -107,7 +151,7 @@ export default function ProviderPage({ params }) {
           </div>
 
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '26px', color: '#1C1917', marginBottom: '4px' }}>{provider.business_name}</h1>
-          <p style={{ fontSize: '14px', color: '#57534E', marginBottom: '2px' }}>{provider.name}</p>
+          {provider.tagline && <p style={{ fontSize: '15px', color: '#D4A017', fontWeight: 500, marginBottom: '4px' }}>{provider.tagline}</p>}
           <p style={{ fontSize: '14px', color: '#57534E', marginBottom: '12px' }}>📍 {provider.area}</p>
 
           {avgRating && (
@@ -127,8 +171,18 @@ export default function ProviderPage({ params }) {
           {/* Image gallery */}
           {provider.images && provider.images.length > 0 && (
             <div style={{ marginBottom: '20px' }}>
-              <div style={{ width: '100%', height: '240px', borderRadius: '12px', overflow: 'hidden', marginBottom: '8px' }}>
+              <div
+                onClick={() => setLightbox(true)}
+                style={{ width: '100%', height: '240px', borderRadius: '12px', overflow: 'hidden', marginBottom: '8px', cursor: 'zoom-in', position: 'relative' }}
+              >
                 <img src={provider.images[activeImage]} alt="provider" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{
+                  position: 'absolute', bottom: '10px', right: '10px',
+                  backgroundColor: 'rgba(0,0,0,0.5)', color: '#FDF8F0',
+                  fontSize: '12px', padding: '4px 10px', borderRadius: '20px'
+                }}>
+                  🔍 Click to expand
+                </div>
               </div>
               {provider.images.length > 1 && (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -136,7 +190,11 @@ export default function ProviderPage({ params }) {
                     <div
                       key={i}
                       onClick={() => setActiveImage(i)}
-                      style={{ width: '64px', height: '64px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: activeImage === i ? '2px solid #0369A1' : '2px solid transparent', opacity: activeImage === i ? 1 : 0.7, transition: 'all 0.15s' }}
+                      style={{
+                        width: '64px', height: '64px', borderRadius: '8px', overflow: 'hidden',
+                        cursor: 'pointer', border: activeImage === i ? '2px solid #0369A1' : '2px solid transparent',
+                        opacity: activeImage === i ? 1 : 0.7, transition: 'all 0.15s'
+                      }}
                     >
                       <img src={url} alt="thumb" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
@@ -146,19 +204,29 @@ export default function ProviderPage({ params }) {
             </div>
           )}
 
-          {/* Action buttons — Call and WhatsApp only */}
-          <div style={{ display: 'flex', gap: '12px' }}>
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <a href={'tel:' + provider.phone} style={{
               flex: 1, textAlign: 'center', backgroundColor: '#7A1515',
               color: '#FDF8F0', padding: '12px', borderRadius: '10px',
-              fontWeight: 600, fontSize: '14px', textDecoration: 'none'
+              fontWeight: 600, fontSize: '14px', textDecoration: 'none',
+              minWidth: '100px'
             }}>📞 Call</a>
             {provider.whatsapp && (
               <a href={'https://wa.me/91' + provider.whatsapp} target="_blank" rel="noreferrer" style={{
                 flex: 1, textAlign: 'center', backgroundColor: '#16A34A',
                 color: '#FDF8F0', padding: '12px', borderRadius: '10px',
-                fontWeight: 600, fontSize: '14px', textDecoration: 'none'
+                fontWeight: 600, fontSize: '14px', textDecoration: 'none',
+                minWidth: '100px'
               }}>💬 WhatsApp</a>
+            )}
+            {provider.maps_link && (
+              <a href={provider.maps_link} target="_blank" rel="noreferrer" style={{
+                flex: 1, textAlign: 'center', backgroundColor: '#0369A1',
+                color: '#FDF8F0', padding: '12px', borderRadius: '10px',
+                fontWeight: 600, fontSize: '14px', textDecoration: 'none',
+                minWidth: '100px'
+              }}>📍 Maps</a>
             )}
           </div>
         </div>
